@@ -10,10 +10,11 @@ const readLine = async () => {
   return input.trim();
 };
 
-const promptSelect = async (
+//Tがstring型と包含関係にあることを証明している
+const promptSelect = async <T extends string>(
   text: string,
-  values: readonly string[]
-): Promise<string> => {
+  values: readonly T[]
+): Promise<T> => {
   printLine(`\n${text}`);
   //選択肢を出力
   values.forEach((value) => {
@@ -22,9 +23,9 @@ const promptSelect = async (
   printLine(`> `, false);
 
   //再帰的に関数を呼び出し再入力を促す
-  const input = await readLine();
+  const input = (await readLine()) as T;
   if (values.includes(input)) return input;
-  else return promptSelect(text, values);
+  else return promptSelect<T>(text, values);
 };
 
 const promptInput = async (text: string) => {
@@ -55,10 +56,10 @@ class HitAndBlow {
   //３つの数字を決定
   async setting() {
     //包含関係なので型アサーションを活用（返って来たstring型をMode型として扱う）
-    this.mode = (await promptSelect('モードを入力してください', [
+    this.mode = await promptSelect<Mode>('モードを入力してください', [
       'nomal',
       'hard',
-    ])) as Mode;
+    ]);
     const answrLength = this.getAnswerLength();
     while (this.answer.length < answrLength) {
       const num = Math.floor(Math.random() * this.answerSource.length);

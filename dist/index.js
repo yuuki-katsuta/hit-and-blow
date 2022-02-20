@@ -53,6 +53,7 @@ var readLine = function () { return __awaiter(void 0, void 0, void 0, function (
         }
     });
 }); };
+//Tがstring型と包含関係にあることを証明している
 var promptSelect = function (text, values) { return __awaiter(void 0, void 0, void 0, function () {
     var input;
     return __generator(this, function (_a) {
@@ -66,7 +67,7 @@ var promptSelect = function (text, values) { return __awaiter(void 0, void 0, vo
                 printLine("> ", false);
                 return [4 /*yield*/, readLine()];
             case 1:
-                input = _a.sent();
+                input = (_a.sent());
                 if (values.includes(input))
                     return [2 /*return*/, input];
                 else
@@ -119,7 +120,7 @@ var HitAndBlow = /** @class */ (function () {
                             ])];
                     case 1:
                         //包含関係なので型アサーションを活用（返って来たstring型をMode型として扱う）
-                        _a.mode = (_b.sent());
+                        _a.mode = _b.sent();
                         answrLength = this.getAnswerLength();
                         while (this.answer.length < answrLength) {
                             num = Math.floor(Math.random() * this.answerSource.length);
