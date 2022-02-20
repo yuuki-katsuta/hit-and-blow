@@ -27,10 +27,15 @@ class HitAndBlow {
   ];
   private answer: string[] = [];
   private tryCount = 0;
+  private mode: 'nomal' | 'hard';
+
+  constructor(mode: 'nomal' | 'hard') {
+    this.mode = mode;
+  }
 
   //３つの数字を決定
   setting() {
-    const answrLength = 3;
+    const answrLength = this.getAnswerLength();
     while (this.answer.length < answrLength) {
       const num = Math.floor(Math.random() * this.answerSource.length);
       const selectedItem = this.answerSource[num];
@@ -40,9 +45,24 @@ class HitAndBlow {
     }
   }
 
+  private getAnswerLength() {
+    switch (this.mode) {
+      case 'nomal':
+        return 3;
+      case 'hard':
+        return 4;
+      default:
+        //到達不能なコードなのでnever型が推論
+        //caseの書き忘れはnever型を活用
+        const neverValue: never = this.mode;
+        throw new Error(`${neverValue}は無効なモードです...`);
+    }
+  }
+
   async play() {
+    const answerLength = this.getAnswerLength();
     const inputArr = (
-      await promptInput('[,]区切りで3つの数字を入力してください')
+      await promptInput(`[,]区切りで${answerLength}つの数字を入力してください`)
     ).split(',');
     if (!this.validate(inputArr)) {
       printLine('無効な入力です!');
@@ -93,12 +113,7 @@ class HitAndBlow {
 }
 
 (async () => {
-  // const name = await promptInput('名前を入力してね!');
-  // console.log(name);
-  // const age = await promptInput('年齢を教えてよ〜');
-  // console.log(age);
-  // process.exit();
-  const hitandblow = new HitAndBlow();
+  const hitandblow = new HitAndBlow('hard');
   hitandblow.setting();
   await hitandblow.play();
   hitandblow.end();

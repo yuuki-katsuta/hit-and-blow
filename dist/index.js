@@ -55,7 +55,7 @@ var promptInput = function (text) { return __awaiter(void 0, void 0, void 0, fun
     });
 }); };
 var HitAndBlow = /** @class */ (function () {
-    function HitAndBlow() {
+    function HitAndBlow(mode) {
         //初期値のセットは演算処理がなければ constructorを介す必要はない
         this.answerSource = [
             '0',
@@ -71,10 +71,11 @@ var HitAndBlow = /** @class */ (function () {
         ];
         this.answer = [];
         this.tryCount = 0;
+        this.mode = mode;
     }
     //３つの数字を決定
     HitAndBlow.prototype.setting = function () {
-        var answrLength = 3;
+        var answrLength = this.getAnswerLength();
         while (this.answer.length < answrLength) {
             var num = Math.floor(Math.random() * this.answerSource.length);
             var selectedItem = this.answerSource[num];
@@ -83,12 +84,27 @@ var HitAndBlow = /** @class */ (function () {
             }
         }
     };
+    HitAndBlow.prototype.getAnswerLength = function () {
+        switch (this.mode) {
+            case 'nomal':
+                return 3;
+            case 'hard':
+                return 4;
+            default:
+                //到達不能なコードなのでnever型が推論
+                //caseの書き忘れはnever型を活用
+                var neverValue = this.mode;
+                throw new Error(neverValue + "\u306F\u7121\u52B9\u306A\u30E2\u30FC\u30C9\u3067\u3059...");
+        }
+    };
     HitAndBlow.prototype.play = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var inputArr, result;
+            var answerLength, inputArr, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, promptInput('[,]区切りで3つの数字を入力してください')];
+                    case 0:
+                        answerLength = this.getAnswerLength();
+                        return [4 /*yield*/, promptInput("[,]\u533A\u5207\u308A\u3067" + answerLength + "\u3064\u306E\u6570\u5B57\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044")];
                     case 1:
                         inputArr = (_a.sent()).split(',');
                         if (!!this.validate(inputArr)) return [3 /*break*/, 3];
@@ -152,7 +168,7 @@ var HitAndBlow = /** @class */ (function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                hitandblow = new HitAndBlow();
+                hitandblow = new HitAndBlow('hard');
                 hitandblow.setting();
                 return [4 /*yield*/, hitandblow.play()];
             case 1:
