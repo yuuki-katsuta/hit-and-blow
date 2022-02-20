@@ -67,6 +67,11 @@ class HitAndBlow {
       blow: blowCount,
     };
   }
+
+  end() {
+    printLine(`正解です!! \n試行回数: ${this.tryCount}回`);
+    process.exit();
+  }
 }
 
 (async () => {
@@ -78,4 +83,5 @@ class HitAndBlow {
   const hitandblow = new HitAndBlow();
   hitandblow.setting();
   await hitandblow.play();
+  hitandblow.end();
 })();
