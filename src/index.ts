@@ -2,14 +2,37 @@ const printLine = (text: string, breakLine: boolean = true) => {
   process.stdout.write(text + (breakLine ? '\n' : ''));
 };
 
-const promptInput = async (text: string) => {
-  printLine(`\n${text}\n>`, false);
-  //標準入力を1回だけ受け取る
+//ユーザーの入力値を返す
+const readLine = async () => {
   const input: string = await new Promise((resolve) =>
     process.stdin.once('data', (data) => resolve(data.toString()))
   );
   return input.trim();
 };
+
+const promptSelect = async (
+  text: string,
+  values: readonly string[]
+): Promise<string> => {
+  printLine(`\n${text}`);
+  //選択肢を出力
+  values.forEach((value) => {
+    printLine(`- ${value}`);
+  });
+  printLine(`> `, false);
+
+  //再帰的に関数を呼び出し再入力を促す
+  const input = await readLine();
+  if (values.includes(input)) return input;
+  else return promptSelect(text, values);
+};
+
+const promptInput = async (text: string) => {
+  printLine(`\n${text}\n>`, false);
+  return await readLine();
+};
+
+type Mode = 'nomal' | 'hard';
 
 class HitAndBlow {
   //初期値のセットは演算処理がなければ constructorを介す必要はない
@@ -27,14 +50,15 @@ class HitAndBlow {
   ];
   private answer: string[] = [];
   private tryCount = 0;
-  private mode: 'nomal' | 'hard';
-
-  constructor(mode: 'nomal' | 'hard') {
-    this.mode = mode;
-  }
+  private mode: Mode = 'nomal';
 
   //３つの数字を決定
-  setting() {
+  async setting() {
+    //包含関係なので型アサーションを活用（返って来たstring型をMode型として扱う）
+    this.mode = (await promptSelect('モードを入力してください', [
+      'nomal',
+      'hard',
+    ])) as Mode;
     const answrLength = this.getAnswerLength();
     while (this.answer.length < answrLength) {
       const num = Math.floor(Math.random() * this.answerSource.length);
@@ -113,8 +137,8 @@ class HitAndBlow {
 }
 
 (async () => {
-  const hitandblow = new HitAndBlow('hard');
-  hitandblow.setting();
+  const hitandblow = new HitAndBlow();
+  await hitandblow.setting();
   await hitandblow.play();
   hitandblow.end();
 })();

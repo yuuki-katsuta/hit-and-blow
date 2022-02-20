@@ -39,23 +39,54 @@ var printLine = function (text, breakLine) {
     if (breakLine === void 0) { breakLine = true; }
     process.stdout.write(text + (breakLine ? '\n' : ''));
 };
-var promptInput = function (text) { return __awaiter(void 0, void 0, void 0, function () {
+//ユーザーの入力値を返す
+var readLine = function () { return __awaiter(void 0, void 0, void 0, function () {
     var input;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                printLine("\n" + text + "\n>", false);
-                return [4 /*yield*/, new Promise(function (resolve) {
-                        return process.stdin.once('data', function (data) { return resolve(data.toString()); });
-                    })];
+            case 0: return [4 /*yield*/, new Promise(function (resolve) {
+                    return process.stdin.once('data', function (data) { return resolve(data.toString()); });
+                })];
             case 1:
                 input = _a.sent();
                 return [2 /*return*/, input.trim()];
         }
     });
 }); };
+var promptSelect = function (text, values) { return __awaiter(void 0, void 0, void 0, function () {
+    var input;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                printLine("\n" + text);
+                //選択肢を出力
+                values.forEach(function (value) {
+                    printLine("- " + value);
+                });
+                printLine("> ", false);
+                return [4 /*yield*/, readLine()];
+            case 1:
+                input = _a.sent();
+                if (values.includes(input))
+                    return [2 /*return*/, input];
+                else
+                    return [2 /*return*/, promptSelect(text, values)];
+                return [2 /*return*/];
+        }
+    });
+}); };
+var promptInput = function (text) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                printLine("\n" + text + "\n>", false);
+                return [4 /*yield*/, readLine()];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
+    });
+}); };
 var HitAndBlow = /** @class */ (function () {
-    function HitAndBlow(mode) {
+    function HitAndBlow() {
         //初期値のセットは演算処理がなければ constructorを介す必要はない
         this.answerSource = [
             '0',
@@ -71,18 +102,36 @@ var HitAndBlow = /** @class */ (function () {
         ];
         this.answer = [];
         this.tryCount = 0;
-        this.mode = mode;
+        this.mode = 'nomal';
     }
     //３つの数字を決定
     HitAndBlow.prototype.setting = function () {
-        var answrLength = this.getAnswerLength();
-        while (this.answer.length < answrLength) {
-            var num = Math.floor(Math.random() * this.answerSource.length);
-            var selectedItem = this.answerSource[num];
-            if (!this.answer.includes(selectedItem)) {
-                this.answer.push(selectedItem);
-            }
-        }
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, answrLength, num, selectedItem;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        //包含関係なので型アサーションを活用（返って来たstring型をMode型として扱う）
+                        _a = this;
+                        return [4 /*yield*/, promptSelect('モードを入力してください', [
+                                'nomal',
+                                'hard',
+                            ])];
+                    case 1:
+                        //包含関係なので型アサーションを活用（返って来たstring型をMode型として扱う）
+                        _a.mode = (_b.sent());
+                        answrLength = this.getAnswerLength();
+                        while (this.answer.length < answrLength) {
+                            num = Math.floor(Math.random() * this.answerSource.length);
+                            selectedItem = this.answerSource[num];
+                            if (!this.answer.includes(selectedItem)) {
+                                this.answer.push(selectedItem);
+                            }
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     HitAndBlow.prototype.getAnswerLength = function () {
         switch (this.mode) {
@@ -168,10 +217,12 @@ var HitAndBlow = /** @class */ (function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                hitandblow = new HitAndBlow('hard');
-                hitandblow.setting();
-                return [4 /*yield*/, hitandblow.play()];
+                hitandblow = new HitAndBlow();
+                return [4 /*yield*/, hitandblow.setting()];
             case 1:
+                _a.sent();
+                return [4 /*yield*/, hitandblow.play()];
+            case 2:
                 _a.sent();
                 hitandblow.end();
                 return [2 /*return*/];
