@@ -33,7 +33,10 @@ const promptInput = async (text: string) => {
   return await readLine();
 };
 
-type Mode = 'nomal' | 'hard';
+// as constにより["nomal", "hard"]型に固定できる。扱う上でstring[]に変換されるのを防ぐ
+const modes = ['nomal', 'hard'] as const;
+//[]で型を抽出できる。numberキーワードによりすべての中身を取り出せる
+type Mode = typeof modes[number];
 
 class HitAndBlow {
   //初期値のセットは演算処理がなければ constructorを介す必要はない
@@ -56,10 +59,7 @@ class HitAndBlow {
   //３つの数字を決定
   async setting() {
     //包含関係なので型アサーションを活用（返って来たstring型をMode型として扱う）
-    this.mode = await promptSelect<Mode>('モードを入力してください', [
-      'nomal',
-      'hard',
-    ]);
+    this.mode = await promptSelect<Mode>('モードを入力してください', modes);
     const answrLength = this.getAnswerLength();
     while (this.answer.length < answrLength) {
       const num = Math.floor(Math.random() * this.answerSource.length);

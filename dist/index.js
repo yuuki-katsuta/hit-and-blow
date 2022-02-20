@@ -86,6 +86,8 @@ var promptInput = function (text) { return __awaiter(void 0, void 0, void 0, fun
         }
     });
 }); };
+// as constにより["nomal", "hard"]型に固定できる。扱う上でstring[]に変換されるのを防ぐ
+var modes = ['nomal', 'hard'];
 var HitAndBlow = /** @class */ (function () {
     function HitAndBlow() {
         //初期値のセットは演算処理がなければ constructorを介す必要はない
@@ -114,10 +116,7 @@ var HitAndBlow = /** @class */ (function () {
                     case 0:
                         //包含関係なので型アサーションを活用（返って来たstring型をMode型として扱う）
                         _a = this;
-                        return [4 /*yield*/, promptSelect('モードを入力してください', [
-                                'nomal',
-                                'hard',
-                            ])];
+                        return [4 /*yield*/, promptSelect('モードを入力してください', modes)];
                     case 1:
                         //包含関係なので型アサーションを活用（返って来たstring型をMode型として扱う）
                         _a.mode = _b.sent();
