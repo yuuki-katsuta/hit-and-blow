@@ -33,6 +33,42 @@ const promptInput = async (text: string) => {
   return await readLine();
 };
 
+const nextActions = ['play again', 'exit'] as const;
+type NextAction = typeof nextActions[number];
+
+class GameProcedure {
+  private currentGameTitle = 'hit and blow';
+  private currentGame = new HitAndBlow();
+
+  public async start() {
+    await this.play();
+  }
+
+  private async play() {
+    printLine(`===\n${this.currentGameTitle}を開始するよ!\n===`);
+    await this.currentGame.setting();
+    await this.currentGame.play();
+    this.currentGame.end();
+
+    const action = await promptSelect<NextAction>(
+      'ゲームを続けますか?',
+      nextActions
+    );
+    if (action === 'play again') await this.play();
+    else if (action === 'exit') this.end();
+    else {
+      //アクション追加したが条件分岐を忘れていた場合エラー
+      const neverValue: never = action;
+      throw new Error(`${neverValue} is an invalid action`);
+    }
+  }
+
+  private end() {
+    printLine('ゲームを終了しました!');
+    process.exit();
+  }
+}
+
 // as constにより["nomal", "hard"]型に固定できる。扱う上でstring[]に変換されるのを防ぐ
 const modes = ['nomal', 'hard'] as const;
 //[]で型を抽出できる。numberキーワードによりすべての中身を取り出せる
@@ -97,7 +133,7 @@ class HitAndBlow {
     const result = this.check(inputArr);
     if (result.hit === this.answer.length) this.tryCount += 1;
     else {
-      printLine(`---\nHit: ${result.hit}\nBlow: ${result.blow}\n---}`);
+      printLine(`---\nHit: ${result.hit}\nBlow: ${result.blow}\n---`);
       this.tryCount += 1;
       await this.play();
     }
@@ -133,13 +169,16 @@ class HitAndBlow {
 
   end() {
     printLine(`正解です!! \n試行回数: ${this.tryCount}回`);
-    process.exit();
+    //インスタンス内のデータをクリア
+    this.reset();
+  }
+
+  reset() {
+    this.answer = [];
+    this.tryCount = 0;
   }
 }
 
 (async () => {
-  const hitandblow = new HitAndBlow();
-  await hitandblow.setting();
-  await hitandblow.play();
-  hitandblow.end();
+  new GameProcedure().start();
 })();

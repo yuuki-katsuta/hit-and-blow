@@ -86,6 +86,65 @@ var promptInput = function (text) { return __awaiter(void 0, void 0, void 0, fun
         }
     });
 }); };
+var nextActions = ['play again', 'exit'];
+var GameProcedure = /** @class */ (function () {
+    function GameProcedure() {
+        this.currentGameTitle = 'hit and blow';
+        this.currentGame = new HitAndBlow();
+    }
+    GameProcedure.prototype.start = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.play()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    GameProcedure.prototype.play = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var action, neverValue;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        printLine("===\n" + this.currentGameTitle + "\u3092\u958B\u59CB\u3059\u308B\u3088!\n===");
+                        return [4 /*yield*/, this.currentGame.setting()];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.currentGame.play()];
+                    case 2:
+                        _a.sent();
+                        this.currentGame.end();
+                        return [4 /*yield*/, promptSelect('ゲームを続けますか?', nextActions)];
+                    case 3:
+                        action = _a.sent();
+                        if (!(action === 'play again')) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.play()];
+                    case 4:
+                        _a.sent();
+                        return [3 /*break*/, 6];
+                    case 5:
+                        if (action === 'exit')
+                            this.end();
+                        else {
+                            neverValue = action;
+                            throw new Error(neverValue + " is an invalid action");
+                        }
+                        _a.label = 6;
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    GameProcedure.prototype.end = function () {
+        printLine('ゲームを終了しました!');
+        process.exit();
+    };
+    return GameProcedure;
+}());
 // as constにより["nomal", "hard"]型に固定できる。扱う上でstring[]に変換されるのを防ぐ
 var modes = ['nomal', 'hard'];
 var HitAndBlow = /** @class */ (function () {
@@ -168,7 +227,7 @@ var HitAndBlow = /** @class */ (function () {
                         this.tryCount += 1;
                         return [3 /*break*/, 6];
                     case 4:
-                        printLine("---\nHit: " + result.hit + "\nBlow: " + result.blow + "\n---}");
+                        printLine("---\nHit: " + result.hit + "\nBlow: " + result.blow + "\n---");
                         this.tryCount += 1;
                         return [4 /*yield*/, this.play()];
                     case 5:
@@ -208,24 +267,18 @@ var HitAndBlow = /** @class */ (function () {
     };
     HitAndBlow.prototype.end = function () {
         printLine("\u6B63\u89E3\u3067\u3059!! \n\u8A66\u884C\u56DE\u6570: " + this.tryCount + "\u56DE");
-        process.exit();
+        //インスタンス内のデータをクリア
+        this.reset();
+    };
+    HitAndBlow.prototype.reset = function () {
+        this.answer = [];
+        this.tryCount = 0;
     };
     return HitAndBlow;
 }());
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var hitandblow;
     return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                hitandblow = new HitAndBlow();
-                return [4 /*yield*/, hitandblow.setting()];
-            case 1:
-                _a.sent();
-                return [4 /*yield*/, hitandblow.play()];
-            case 2:
-                _a.sent();
-                hitandblow.end();
-                return [2 /*return*/];
-        }
+        new GameProcedure().start();
+        return [2 /*return*/];
     });
 }); })();
