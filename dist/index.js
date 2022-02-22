@@ -35,62 +35,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var printLine = function (text, breakLine) {
-    if (breakLine === void 0) { breakLine = true; }
-    process.stdout.write(text + (breakLine ? '\n' : ''));
-};
-//ユーザーの入力値を返す
-var readLine = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var input;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, new Promise(function (resolve) {
-                    return process.stdin.once('data', function (data) { return resolve(data.toString()); });
-                })];
-            case 1:
-                input = _a.sent();
-                return [2 /*return*/, input.trim()];
-        }
-    });
-}); };
-//Tがstring型と包含関係にあることを証明している
-var promptSelect = function (text, values) { return __awaiter(void 0, void 0, void 0, function () {
-    var input;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                printLine("\n" + text);
-                //選択肢を出力
-                values.forEach(function (value) {
-                    printLine("- " + value);
-                });
-                printLine("> ", false);
-                return [4 /*yield*/, readLine()];
-            case 1:
-                input = (_a.sent());
-                if (values.includes(input))
-                    return [2 /*return*/, input];
-                else
-                    return [2 /*return*/, promptSelect(text, values)];
-                return [2 /*return*/];
-        }
-    });
-}); };
-var promptInput = function (text) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                printLine("\n" + text + "\n>", false);
-                return [4 /*yield*/, readLine()];
-            case 1: return [2 /*return*/, _a.sent()];
-        }
-    });
-}); };
-var Game = /** @class */ (function () {
-    function Game() {
-    }
-    return Game;
-}());
+exports.__esModule = true;
+var hitAndBlow_1 = require("./hitAndBlow");
+var janken_1 = require("./janken");
+var print_1 = require("./print");
+var print_2 = require("./print");
 var nextActions = ['play again', 'change game', 'exit'];
 var gameTitles = ['hit and blow', 'janken'];
 var GameProcedure = /** @class */ (function () {
@@ -122,7 +71,7 @@ var GameProcedure = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _a = this;
-                        return [4 /*yield*/, promptSelect('ゲームのタイトルを入力してください', gameTitles)];
+                        return [4 /*yield*/, print_2.promptSelect('ゲームのタイトルを入力してください', gameTitles)];
                     case 1:
                         _a.currentGameTitle = _b.sent();
                         this.currentGame = this.gameStore[this.currentGameTitle];
@@ -139,7 +88,7 @@ var GameProcedure = /** @class */ (function () {
                     case 0:
                         if (!this.currentGame)
                             throw new Error('ゲームが選択されていません');
-                        printLine("===\n" + this.currentGameTitle + "\u3092\u958B\u59CB\u3059\u308B\u3088!\n===");
+                        print_1.printLine("===\n" + this.currentGameTitle + "\u3092\u958B\u59CB\u3059\u308B\u3088!\n===");
                         return [4 /*yield*/, this.currentGame.setting()];
                     case 1:
                         _a.sent();
@@ -147,7 +96,7 @@ var GameProcedure = /** @class */ (function () {
                     case 2:
                         _a.sent();
                         this.currentGame.end();
-                        return [4 /*yield*/, promptSelect('ゲームを続けますか?', nextActions)];
+                        return [4 /*yield*/, print_2.promptSelect('ゲームを続けますか?', nextActions)];
                     case 3:
                         action = _a.sent();
                         if (!(action === 'play again')) return [3 /*break*/, 5];
@@ -178,256 +127,16 @@ var GameProcedure = /** @class */ (function () {
         });
     };
     GameProcedure.prototype.end = function () {
-        printLine('ゲームを終了しました!');
+        print_1.printLine('ゲームを終了しました!');
         process.exit();
     };
     return GameProcedure;
 }());
-// as constにより["nomal", "hard"]型に固定できる。扱う上でstring[]に変換されるのを防ぐ
-var modes = ['nomal', 'hard'];
-//implementsで,HitAndBlowクラスはGameの抽象クラスを実装するということ
-var HitAndBlow = /** @class */ (function () {
-    function HitAndBlow() {
-        //初期値のセットは演算処理がなければ constructorを介す必要はない
-        this.answerSource = [
-            '0',
-            '1',
-            '2',
-            '3',
-            '4',
-            '5',
-            '6',
-            '7',
-            '8',
-            '9',
-        ];
-        this.answer = [];
-        this.tryCount = 0;
-        this.mode = 'nomal';
-    }
-    //３つの数字を決定
-    HitAndBlow.prototype.setting = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, answrLength, num, selectedItem;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        //包含関係なので型アサーションを活用（返って来たstring型をMode型として扱う）
-                        _a = this;
-                        return [4 /*yield*/, promptSelect('モードを入力してください', modes)];
-                    case 1:
-                        //包含関係なので型アサーションを活用（返って来たstring型をMode型として扱う）
-                        _a.mode = _b.sent();
-                        answrLength = this.getAnswerLength();
-                        while (this.answer.length < answrLength) {
-                            num = Math.floor(Math.random() * this.answerSource.length);
-                            selectedItem = this.answerSource[num];
-                            if (!this.answer.includes(selectedItem)) {
-                                this.answer.push(selectedItem);
-                            }
-                        }
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    HitAndBlow.prototype.getAnswerLength = function () {
-        switch (this.mode) {
-            case 'nomal':
-                return 3;
-            case 'hard':
-                return 4;
-            default:
-                //到達不能なコードなのでnever型が推論
-                //caseの書き忘れはnever型を活用
-                var neverValue = this.mode;
-                throw new Error(neverValue + "\u306F\u7121\u52B9\u306A\u30E2\u30FC\u30C9\u3067\u3059...");
-        }
-    };
-    HitAndBlow.prototype.play = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var answerLength, inputArr, result;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        answerLength = this.getAnswerLength();
-                        return [4 /*yield*/, promptInput("[,]\u533A\u5207\u308A\u3067" + answerLength + "\u3064\u306E\u6570\u5B57\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044")];
-                    case 1:
-                        inputArr = (_a.sent()).split(',');
-                        if (!!this.validate(inputArr)) return [3 /*break*/, 3];
-                        printLine('無効な入力です!');
-                        return [4 /*yield*/, this.play()];
-                    case 2:
-                        _a.sent();
-                        return [2 /*return*/];
-                    case 3:
-                        result = this.check(inputArr);
-                        if (!(result.hit === this.answer.length)) return [3 /*break*/, 4];
-                        this.tryCount += 1;
-                        return [3 /*break*/, 6];
-                    case 4:
-                        printLine("---\nHit: " + result.hit + "\nBlow: " + result.blow + "\n---");
-                        this.tryCount += 1;
-                        return [4 /*yield*/, this.play()];
-                    case 5:
-                        _a.sent();
-                        _a.label = 6;
-                    case 6: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    //外部からアクセスしているわけではないのでprivate修飾子を付与
-    HitAndBlow.prototype.check = function (input) {
-        var _this = this;
-        var hitCount = 0;
-        var blowCount = 0;
-        input.forEach(function (val, index) {
-            if (val === _this.answer[index])
-                hitCount += 1;
-            else if (_this.answer.includes(val))
-                blowCount += 1;
-        });
-        return {
-            hit: hitCount,
-            blow: blowCount
-        };
-    };
-    HitAndBlow.prototype.validate = function (inputArr) {
-        var _this = this;
-        var isLengthValid = inputArr.length === this.answer.length;
-        //answerSourceに含まれるか
-        var isAllAnswerSourceOption = inputArr.every(function (val) {
-            return _this.answerSource.includes(val);
-        });
-        //重複チェック
-        var isAllDifferentValues = inputArr.every(function (val, i) { return inputArr.indexOf(val) === i; });
-        return isLengthValid && isAllAnswerSourceOption && isAllDifferentValues;
-    };
-    HitAndBlow.prototype.end = function () {
-        printLine("\u6B63\u89E3\u3067\u3059!! \n\u8A66\u884C\u56DE\u6570: " + this.tryCount + "\u56DE");
-        //インスタンス内のデータをクリア
-        this.reset();
-    };
-    HitAndBlow.prototype.reset = function () {
-        this.answer = [];
-        this.tryCount = 0;
-    };
-    return HitAndBlow;
-}());
-var jankenOptions = ['rock', 'paper', 'scissors'];
-var Janken = /** @class */ (function () {
-    function Janken() {
-        this.rounds = 0;
-        this.currentRound = 1;
-        this.result = {
-            win: 0,
-            lose: 0,
-            draw: 0
-        };
-    }
-    Janken.prototype.setting = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var rounds, _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = Number;
-                        return [4 /*yield*/, promptInput('何本勝負にしますか？')];
-                    case 1:
-                        rounds = _a.apply(void 0, [_b.sent()]);
-                        if (!(Number.isInteger(rounds) && 0 < rounds)) return [3 /*break*/, 2];
-                        this.rounds = rounds;
-                        return [3 /*break*/, 4];
-                    case 2: return [4 /*yield*/, this.setting()];
-                    case 3:
-                        _b.sent();
-                        _b.label = 4;
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    Janken.prototype.play = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var userSelected, randomSelected, result, resultText;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, promptSelect("\u3010" + this.currentRound + "\u56DE\u6226\u3011\u9078\u629E\u80A2\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002", jankenOptions)];
-                    case 1:
-                        userSelected = _a.sent();
-                        randomSelected = jankenOptions[Math.floor(Math.random() * 3)];
-                        result = Janken.judge(userSelected, randomSelected);
-                        switch (result) {
-                            case 'win':
-                                this.result.win += 1;
-                                resultText = '勝ち';
-                                break;
-                            case 'lose':
-                                this.result.lose += 1;
-                                resultText = '負け';
-                                break;
-                            case 'draw':
-                                this.result.draw += 1;
-                                resultText = 'あいこ';
-                                break;
-                        }
-                        printLine("---\n\u3042\u306A\u305F: " + userSelected + "\n\u76F8\u624B" + randomSelected + "\n" + resultText + "\n---");
-                        if (!(this.currentRound < this.rounds)) return [3 /*break*/, 3];
-                        this.currentRound += 1;
-                        return [4 /*yield*/, this.play()];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    Janken.prototype.end = function () {
-        printLine("\n" + this.result.win + "\u52DD" + this.result.lose + "\u6557" + this.result.draw + "\u5F15\u304D\u5206\u3051\u3067\u3057\u305F\u3002");
-        this.reset();
-    };
-    Janken.prototype.reset = function () {
-        this.rounds = 0;
-        this.currentRound = 1;
-        this.result = {
-            win: 0,
-            lose: 0,
-            draw: 0
-        };
-    };
-    //インスタンスに依存しないのでstaticメソッドを活用
-    Janken.judge = function (userSelected, randomSelected) {
-        if (userSelected === 'rock') {
-            if (randomSelected === 'rock')
-                return 'draw';
-            if (randomSelected === 'paper')
-                return 'lose';
-            return 'win';
-        }
-        else if (userSelected === 'paper') {
-            if (randomSelected === 'rock')
-                return 'win';
-            if (randomSelected === 'paper')
-                return 'draw';
-            return 'lose';
-        }
-        else {
-            if (randomSelected === 'rock')
-                return 'lose';
-            if (randomSelected === 'paper')
-                return 'win';
-            return 'draw';
-        }
-    };
-    return Janken;
-}());
 (function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         new GameProcedure({
-            'hit and blow': new HitAndBlow(),
-            janken: new Janken()
+            'hit and blow': new hitAndBlow_1.HitAndBlow(),
+            janken: new janken_1.Janken()
         }).start();
         return [2 /*return*/];
     });
