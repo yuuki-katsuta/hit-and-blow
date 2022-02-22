@@ -36,13 +36,13 @@ const promptInput = async (text: string) => {
 const nextActions = ['play again', 'change game', 'exit'] as const;
 type NextAction = typeof nextActions[number];
 
-type GameStore = {
-  'hit and blow': HitAndBlow;
-  janken: Janken;
-};
-
 const gameTitles = ['hit and blow', 'janken'] as const;
 type GameTitle = typeof gameTitles[number];
+
+//mapped types ユニオン型がオブジェクトのキーとなる型を生成
+type GameStore = {
+  [key in GameTitle]: HitAndBlow | Janken;
+};
 
 class GameProcedure {
   private currentGameTitle: GameTitle | '' = '';
@@ -274,6 +274,7 @@ class Janken {
     };
   }
 
+  //インスタンスに依存しないのでstaticメソッドを活用
   static judge(userSelected: JankenOption, randomSelected: JankenOption) {
     if (userSelected === 'rock') {
       if (randomSelected === 'rock') return 'draw';

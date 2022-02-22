@@ -391,6 +391,7 @@ var Janken = /** @class */ (function () {
             draw: 0
         };
     };
+    //インスタンスに依存しないのでstaticメソッドを活用
     Janken.judge = function (userSelected, randomSelected) {
         if (userSelected === 'rock') {
             if (randomSelected === 'rock')
