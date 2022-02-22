@@ -33,6 +33,13 @@ const promptInput = async (text: string) => {
   return await readLine();
 };
 
+abstract class Game {
+  //抽象メソッド（実装を持たない型だけの存在）
+  abstract setting(): Promise<void>;
+  abstract play(): Promise<void>;
+  abstract end(): void;
+}
+
 const nextActions = ['play again', 'change game', 'exit'] as const;
 type NextAction = typeof nextActions[number];
 
@@ -41,12 +48,13 @@ type GameTitle = typeof gameTitles[number];
 
 //mapped types ユニオン型がオブジェクトのキーとなる型を生成
 type GameStore = {
-  [key in GameTitle]: HitAndBlow | Janken;
+  // setting,play,endの3つのメソッドを持つことを保証した型なので、Gameに置き換え可能
+  [key in GameTitle]: Game;
 };
 
 class GameProcedure {
   private currentGameTitle: GameTitle | '' = '';
-  private currentGame: HitAndBlow | Janken | null = null;
+  private currentGame: Game | null = null;
 
   //インスタンス化されるときgameStoreプロパティがセットされる.readonlyなどの修飾子があればプロパティに自動セットされる
   constructor(private readonly gameStore: GameStore) {}
@@ -98,7 +106,8 @@ const modes = ['nomal', 'hard'] as const;
 //[]で型を抽出できる。numberキーワードによりすべての中身を取り出せる
 type Mode = typeof modes[number];
 
-class HitAndBlow {
+//implementsで,HitAndBlowクラスはGameの抽象クラスを実装するということ
+class HitAndBlow implements Game {
   //初期値のセットは演算処理がなければ constructorを介す必要はない
   private readonly answerSource = [
     '0',
@@ -206,7 +215,7 @@ class HitAndBlow {
 const jankenOptions = ['rock', 'paper', 'scissors'] as const;
 type JankenOption = typeof jankenOptions[number];
 
-class Janken {
+class Janken implements Game {
   private rounds = 0;
   private currentRound = 1;
   private result = {

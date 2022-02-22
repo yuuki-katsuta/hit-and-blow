@@ -86,6 +86,11 @@ var promptInput = function (text) { return __awaiter(void 0, void 0, void 0, fun
         }
     });
 }); };
+var Game = /** @class */ (function () {
+    function Game() {
+    }
+    return Game;
+}());
 var nextActions = ['play again', 'change game', 'exit'];
 var gameTitles = ['hit and blow', 'janken'];
 var GameProcedure = /** @class */ (function () {
@@ -180,6 +185,7 @@ var GameProcedure = /** @class */ (function () {
 }());
 // as constにより["nomal", "hard"]型に固定できる。扱う上でstring[]に変換されるのを防ぐ
 var modes = ['nomal', 'hard'];
+//implementsで,HitAndBlowクラスはGameの抽象クラスを実装するということ
 var HitAndBlow = /** @class */ (function () {
     function HitAndBlow() {
         //初期値のセットは演算処理がなければ constructorを介す必要はない
